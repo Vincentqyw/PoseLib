@@ -35,3 +35,4 @@
 .vscode
 .vs/*
 out/*
+poselib.egg-info*

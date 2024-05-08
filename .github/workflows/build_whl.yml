@@ -1,0 +1,51 @@
+name: Build and Release poselib
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
+          - 3.10
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Create and Activate Virtual Environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Build Python Package
+      run: |
+        python setup.py bdist_wheel
+
+    - name: Deactivate Virtual Environment
+      run: |
+        deactivate
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*.whl
+        token: ${{ secrets.GITHUB_TOKEN }}
+        release_name: Release ${{ github.sha }}
+        tag_name: ${{ github.sha }}
+        body: |
+          This is an automated release.
+
